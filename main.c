@@ -1,17 +1,13 @@
 #include <iostm8s105c6.h>
 #include "nOS.h"
 
-extern void __push_context(void);
-extern void __pop_context(void);
-
 int tick = 0;
 // Automatic push of PC, X, Y, A and CCR on ISR enter
 // Automatic global interrupt disabling on ISR enter
 // Automatic pop of PC, X, Y, A and CCR on ISR exit
 //  this has the effet of restauring previous interrupt mask state
 //  IRET doesn't set anything special
-#pragma vector=TIM4_OVR_UIF_vector
-__interrupt void my_handler(void)
+NOS_ISR(TIM4_OVR_UIF_vector)
 {
   TIM4_SR_UIF = 0; // Clear TIM4 interrupt flag
   tick++;
@@ -25,6 +21,11 @@ __interrupt void my_handler(void)
 void delay(unsigned int n)
 {
     while (n-- > 0);
+}
+
+void my_function(void)
+{
+  int i = 1;
 }
 
 int main( void )
@@ -85,8 +86,6 @@ int main( void )
     while (1)
     {
         PD_ODR_bit.ODR0 = !PD_ODR_bit.ODR0;
-        __push_context();
-        __pop_context();
         delay(0xFFFF);
         delay(0xFFFF);
         delay(0xFFFF);

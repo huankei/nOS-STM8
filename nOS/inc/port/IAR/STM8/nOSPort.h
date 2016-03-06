@@ -44,6 +44,10 @@ typedef uint8_t                 nOS_StatusReg;
 nOS_Stack*      nOS_EnterIsr        (nOS_Stack *sp);
 nOS_Stack*      nOS_LeaveIsr        (nOS_Stack *sp);
 
+#define NOS_ISR(vect) \
+_Pragma(_STRINGIFY(vector=vect)) \
+__interrupt void my_handler(void)
+
 //#define NOS_ISR(vect)                                                           \
 //void vect##_ISR(void) __attribute__ ( ( naked ) );                              \
 //inline void vect##_ISR_L2(void) __attribute__( ( always_inline ) );             \
