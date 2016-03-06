@@ -23,7 +23,7 @@ void delay(unsigned int n)
     while (n-- > 0);
 }
 
-void my_function(void)
+__monitor void my_function(void)
 {
   int i = 1;
 }
@@ -86,6 +86,7 @@ int main( void )
     while (1)
     {
         PD_ODR_bit.ODR0 = !PD_ODR_bit.ODR0;
+        my_function();
         delay(0xFFFF);
         delay(0xFFFF);
         delay(0xFFFF);
