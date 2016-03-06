@@ -45,12 +45,14 @@ nOS_Stack*      nOS_EnterIsr        (nOS_Stack *sp);
 nOS_Stack*      nOS_LeaveIsr        (nOS_Stack *sp);
 
 #define NOS_ISR(vect) \
+void vect##_ISR_L2(void); \
 _Pragma(_STRINGIFY(vector=vect)) \
- __interrupt void vect##_ISR(void) \
-  {
-    __push_context();
-    vect_ISR_L2();
-void vect_ISR_L2(void)
+__interrupt void vect##_ISR(void) \
+{ \
+    __push_context(); \
+    vect##_ISR_L2(); \
+} \
+void vect##_ISR_L2(void)
 
 //#define NOS_ISR(vect)                                                           \
 //void vect##_ISR(void) __attribute__ ( ( naked ) );                              \
