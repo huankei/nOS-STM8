@@ -53,6 +53,7 @@ __interrupt void vect##_ISR(void) \
 { \
     __push_context_from_isr(); \
     vect##_ISR_L2(); \
+    __disable_interrupt(); \
 } \
 void vect##_ISR_L2(void)
 

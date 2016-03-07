@@ -4,6 +4,10 @@
         public  __pop_context_from_task
         public  __push_context_from_isr
         public  __pop_context_from_isr
+        public  __get_cpu_sp
+        public  __get_cpu_x
+        public  __get_cpu_y
+        public  __get_cpu_cc
 
         #include <vregs.inc>
 
@@ -88,6 +92,22 @@ __pop_context_from_isr:
                 pop_vregs
                 push  savepcl
                 push  savepch
+                ret
+                
+__get_cpu_sp:
+                ldw X, SP
+                ret
+
+__get_cpu_x:
+                ret
+                
+__get_cpu_y:
+                ldw X, Y
+                ret
+                
+__get_cpu_cc:
+                push CC
+                pop A
                 ret
 
         end
