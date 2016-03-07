@@ -12,8 +12,10 @@
 #include <iostm8s105c6.h>
 #include <intrinsics.h>
    
-extern void __push_context(void);
-extern void __pop_context (void);
+extern void __push_context_from_task(void);
+extern void __pop_context_from_task (void);
+extern void __push_context_from_isr (void);
+extern void __pop_context_from_isr  (void);
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +51,7 @@ void vect##_ISR_L2(void); \
 _Pragma(_STRINGIFY(vector=vect)) \
 __interrupt void vect##_ISR(void) \
 { \
-    __push_context(); \
+    __push_context_from_isr(); \
     vect##_ISR_L2(); \
 } \
 void vect##_ISR_L2(void)

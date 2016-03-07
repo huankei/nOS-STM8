@@ -88,11 +88,11 @@ void nOS_InitContext(nOS_Thread *thread, nOS_Stack *stack, size_t ssize, nOS_Thr
 /* Declare this function as __task; we don't need the compiler to push registers on the stack since we do it manually */
 __task void nOS_SwitchContext(void)
 {
-    __push_context();
+    __push_context_from_task();
     nOS_runningThread->stackPtr  = (nOS_Stack *) CPU_SPH;
     nOS_runningThread = nOS_highPrioThread;
     CPU_SPL = (int)nOS_highPrioThread->stackPtr;
-    __pop_context();
+    __pop_context_from_task();
     asm("ret");
 }
 
