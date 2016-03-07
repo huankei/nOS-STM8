@@ -1,172 +1,118 @@
+/*
+ * nOS v0.1
+ * Copyright (c) 2014 Jim Tremblay
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+#include <stdint.h>
+#include <stdio.h>
+
 #include <iostm8s105c6.h>
+
 #include "nOS.h"
 
-int tick = 0;
-// Automatic push of PC, X, Y, A and CCR on ISR enter
-// Automatic global interrupt disabling on ISR enter
-// Automatic pop of PC, X, Y, A and CCR on ISR exit
-//  this has the effet of restauring previous interrupt mask state
-//  IRET doesn't set anything special
+#define THREAD_STACK_SIZE       128
+
+static void Timer2Init(void);
+
+void ThreadA(void *arg);
+void ThreadB(void *arg);
+void ThreadC(void *arg);
+
+nOS_Sem semA;
+nOS_Sem semB;
+nOS_Sem semC;
+nOS_Thread threadA;
+nOS_Thread threadB;
+nOS_Thread threadC;
+nOS_Stack threadAStack[THREAD_STACK_SIZE];
+nOS_Stack threadBStack[THREAD_STACK_SIZE];
+nOS_Stack threadCStack[THREAD_STACK_SIZE];
+
+void ThreadA(void *arg)
+{
+    volatile uint32_t cntr = 0;
+
+    (void)arg;
+
+    while(1)
+    {
+        nOS_SemTake(&semA, NOS_WAIT_INFINITE);
+        cntr++;
+    }
+}
+
+void ThreadB(void *arg)
+{
+    volatile uint32_t cntr = 0;
+    cntr |= 0x80;
+
+    (void)arg;
+
+    while(1)
+    {
+        nOS_SemTake(&semB, NOS_WAIT_INFINITE);
+        nOS_SemGive(&semA);
+        cntr++;
+    }
+}
+
+void ThreadC(void *arg)
+{
+    volatile uint32_t cntr = 0;
+
+    (void)arg;
+
+    while(1)
+    {
+        nOS_SemTake(&semC, NOS_WAIT_INFINITE);
+        nOS_SemGive(&semB);
+        cntr++;
+    }
+}
+
 NOS_ISR(TIM4_OVR_UIF_vector)
 {
-  TIM4_SR_UIF = 0; // Clear TIM4 interrupt flag
-  tick++;
-}
-//
-// Delay loop
-//
-// Actual delay depends on clock settings
-// and compiler optimization settings.
-//
-void delay(unsigned int n)
-{
-    while (n-- > 0);
+    TIM4_SR_UIF = 0;        /* Clear TIM4 interrupt flag */
+    nOS_Tick();;
 }
 
-void my_func2(void)
+static void Timer4Init(void)
 {
-  unsigned char a = 5;
-  unsigned char b = 5;
-  unsigned char c = 5;
-  unsigned char d = 5;
-unsigned char e = 5;
-unsigned char f = 5;
-  unsigned char g = 5;
-  unsigned char h = 5;
-  unsigned char i = 5;
-  unsigned char j = 5;
-  unsigned char k = 5;
-  unsigned char l = 5;
-  unsigned char m = 5;
-  unsigned char n = 5;
-  unsigned char o = 5;
-  unsigned char p = 5;
-  
-  a = b;
-  b = c;
-  c = d;
-d = e;
-e=f;
-  f=g;
-  g=h;
-  h=i;
-  i=j;
-  k=l;
-  m=n;
-  o=p;
-}
-void my_func(void)
-{
-  unsigned char a = 5;
-  unsigned char b = 5;
-  unsigned char c = 5;
-  unsigned char d = 5;
-  unsigned char e = 5;
-unsigned char f = 5;
-unsigned char g = 5;
-//unsigned char h = 5;
-//unsigned char i = 5;
-//unsigned char j = 5;
-//unsigned char k = 5;
-//unsigned char l = 5;
-//unsigned char m = 5;
-//unsigned char n = 5;
-//unsigned char o = 5;
-//unsigned char p = 5;
-  
-  //my_func2();
+    CLK_CKDIVR = 0;         /* Default 16 MHz RC oscillator with no prescaler */
 
-  a = b;
-  b = c;
-  c = d;
-d = e;
-e=f;
-  f=g;
-//  g=h;
-//  h=i;
-//  i=j;
-//  k=l;
-//  m=n;
-//  o=p;
+    TIM4_IER_UIE = 1;       /* Enable TIM4 interrupts */
+    TIM4_PSCR_PSC = 6;      /* Prescaler of 64 from main clock */
+    TIM4_ARR = 250;         /* Compare value for 1000 Hz tick */
+    TIM4_CR1_CEN = 1;       /* Counter enable */
+
+    asm("RIM");             /* Enable global interrupts */
 }
 
-int main( void )
+int main (void)
 {
-    unsigned char intstate;
-    unsigned int sp;
-    unsigned int x;
-    unsigned int y;
-    unsigned char cc;
+    volatile uint32_t cntr = 0;
 
-    // Clock config
-    CLK_CKDIVR = 0; // Default 16Mhz RC clock with no divider
-    // Timer4 init
-    TIM4_IER_UIE = 1; // Enable interrupt
-    TIM4_PSCR_PSC = 6; // Prescaler of 64
-    TIM4_ARR = 250;  // Compare value
-    TIM4_CR1_CEN = 1; // Counter enable
-    //asm("RIM"); // Enable global interrupts
-  
-    //
-    // Data Direction Register
-    //
-    // 0: Input
-    // 1: Output
-    //
-    PD_DDR_bit.DDR0 = 1;
-    
-    //
-    // Control Register 1
-    //
-    // Input mode:
-    //   0: Floating input
-    //   1: Input with pull-up
-    //
-    // Output mode:
-    //   0: Pseudo open drain
-    //   1: Push-pull
-    //
-    PD_CR1_bit.C10 = 1;
-    
-    //
-    // Control Register 2
-    //
-    // Input mode:
-    //   0: External interrupt disabled
-    //   1: External interrupt enabled
-    //
-    // Output mode:
-    //   0: Output speed up to  2 MHz
-    //   1: Output speed up to 10 MHz
-    //
-    PD_CR2_bit.C20 = 1;
-    
-    //
-    // Output Data Register
-    //
-    // Output value
-    //
-    PD_ODR_bit.ODR0 = 0;
-    
-    //
-    // Main loop
-    //
+    nOS_Init();
+
+    nOS_ThreadSetName(NULL, "main");
+
+    nOS_SemCreate(&semA, 0, 1);
+    nOS_SemCreate(&semB, 0, 1);
+    nOS_SemCreate(&semC, 0, 1);
+
+    nOS_ThreadCreate(&threadA, ThreadA, (void*)300, threadAStack, THREAD_STACK_SIZE, NOS_CONFIG_HIGHEST_THREAD_PRIO,   NOS_THREAD_READY, "ThreadA");
+    nOS_ThreadCreate(&threadB, ThreadB, (void*)200, threadBStack, THREAD_STACK_SIZE, NOS_CONFIG_HIGHEST_THREAD_PRIO-1, NOS_THREAD_READY, "ThreadB");
+    nOS_ThreadCreate(&threadC, ThreadC, (void*)100, threadCStack, THREAD_STACK_SIZE, NOS_CONFIG_HIGHEST_THREAD_PRIO-2, NOS_THREAD_READY, "ThreadC");
+
+    nOS_Start(Timer4Init);
+
     while (1)
     {
-        intstate = __get_interrupt_state();
-        __set_cpu_sp(0xFFFF);
-        sp = __get_cpu_sp();
-        x = __get_cpu_x();
-        y = __get_cpu_y();
-        cc = __get_cpu_cc();
-        my_func();
-        PD_ODR_bit.ODR0 = !PD_ODR_bit.ODR0;
-        //__push_context();
-        delay(0xFFFF);
-        delay(0xFFFF);
-        delay(0xFFFF);
-        delay(0xFFFF);
-        delay(0xFFFF);
-        delay(0xFFFF);
+        nOS_SemGive(&semC);
+        cntr++;
     }
 }
