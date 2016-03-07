@@ -1,9 +1,6 @@
 #include <iostm8s105c6.h>
 #include "nOS.h"
-extern unsigned int  __get_cpu_sp(void);
-extern unsigned int  __get_cpu_x(void);
-extern unsigned int  __get_cpu_y(void);
-extern unsigned char __get_cpu_cc(void);
+
 int tick = 0;
 // Automatic push of PC, X, Y, A and CCR on ISR enter
 // Automatic global interrupt disabling on ISR enter
@@ -157,6 +154,7 @@ int main( void )
     while (1)
     {
         intstate = __get_interrupt_state();
+        __set_cpu_sp(0xFFFF);
         sp = __get_cpu_sp();
         x = __get_cpu_x();
         y = __get_cpu_y();

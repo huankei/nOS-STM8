@@ -12,10 +12,15 @@
 #include <iostm8s105c6.h>
 #include <intrinsics.h>
    
-extern void __push_context_from_task(void);
-extern void __pop_context_from_task (void);
-extern void __push_context_from_isr (void);
-extern void __pop_context_from_isr  (void);
+extern void          __push_context_from_task (void);
+extern void          __pop_context_from_task  (void);
+extern void          __push_context_from_isr  (void);
+extern void          __pop_context_from_isr   (void);
+extern void          __set_cpu_sp             (int sp);
+extern unsigned int  __get_cpu_sp             (void);
+extern unsigned int  __get_cpu_x              (void);
+extern unsigned int  __get_cpu_y              (void);
+extern unsigned char __get_cpu_cc             (void);
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,12 +41,12 @@ typedef uint8_t                 nOS_StatusReg;
 
 #define nOS_EnterCritical(sr)                                                   \
     do {                                                                        \
-        sr = CPU_CCR;                                                           \
-        __disable_interrupt();                                                             \
+        sr = __get_interrupt_state();                                           \
+        __disable_interrupt();                                                  \
     } while (0)
 
 #define nOS_LeaveCritical(sr)                                                   \
-    CPU_CCR = sr
+    __set_interrupt_state(sr)
 
 nOS_Stack*      nOS_EnterIsr        (nOS_Stack *sp);
 nOS_Stack*      nOS_LeaveIsr        (nOS_Stack *sp);

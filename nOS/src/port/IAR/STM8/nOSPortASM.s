@@ -4,6 +4,7 @@
         public  __pop_context_from_task
         public  __push_context_from_isr
         public  __pop_context_from_isr
+        public  __set_cpu_sp
         public  __get_cpu_sp
         public  __get_cpu_x
         public  __get_cpu_y
@@ -93,7 +94,15 @@ __pop_context_from_isr:
                 push  savepcl
                 push  savepch
                 ret
-                
+
+__set_cpu_sp:
+                pop savepch
+                pop savepcl
+                ldw SP, X
+                push  savepcl
+                push  savepch
+                ret
+
 __get_cpu_sp:
                 ldw X, SP
                 ret
