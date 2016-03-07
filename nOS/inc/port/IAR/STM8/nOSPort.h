@@ -59,30 +59,11 @@ __interrupt void vect##_ISR(void)                                               
     __set_cpu_sp((int)nOS_EnterIsr((nOS_Stack*)__get_cpu_sp()));                \
     vect##_ISR_L2();                                                            \
     __disable_interrupt();                                                      \
+    __set_cpu_sp((int)nOS_EnterIsr((nOS_Stack*)__get_cpu_sp()));                \
     __push_context_from_isr();                                                  \
     asm("iret");                                                                \
 }                                                                               \
 void vect##_ISR_L2(void)
-
-//#define NOS_ISR(vect)                                                           \
-//void vect##_ISR(void) __attribute__ ( ( naked ) );                              \
-//inline void vect##_ISR_L2(void) __attribute__( ( always_inline ) );             \
-//ISR(vect, ISR_NAKED)                                                            \
-//{                                                                               \
-//    vect##_ISR();                                                               \
-//    reti();                                                                     \
-//}                                                                               \
-//void vect##_ISR(void)                                                           \
-//{                                                                               \
-//    PUSH_CONTEXT();                                                             \
-//    SP = (int)nOS_EnterIsr((nOS_Stack*)SP);                                     \
-//    vect##_ISR_L2();                                                            \
-//    cli();                                                                      \
-//    SP = (int)nOS_LeaveIsr((nOS_Stack*)SP);                                     \
-//    POP_CONTEXT();                                                              \
-//    asm volatile ("ret");                                                       \
-//}                                                                               \
-//inline void vect##_ISR_L2(void)
 
 #ifdef NOS_PRIVATE
  void   nOS_InitSpecific         (void);
