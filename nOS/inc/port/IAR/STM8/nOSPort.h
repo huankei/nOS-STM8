@@ -9,7 +9,6 @@
 #ifndef NOSPORT_H
 #define NOSPORT_H
 
-#include <iostm8s105c6.h>
 #include <intrinsics.h>
    
 extern void          __push_context_from_task (void);
@@ -51,15 +50,18 @@ typedef uint8_t                 nOS_StatusReg;
 nOS_Stack*      nOS_EnterIsr        (nOS_Stack *sp);
 nOS_Stack*      nOS_LeaveIsr        (nOS_Stack *sp);
 
-#define NOS_ISR(vect) \
-void vect##_ISR_L2(void); \
-_Pragma(_STRINGIFY(vector=vect)) \
-__interrupt void vect##_ISR(void) \
-{ \
-    __push_context_from_isr(); \
-    vect##_ISR_L2(); \
-    __disable_interrupt(); \
-} \
+#define NOS_ISR(vect)                                                           \
+void vect##_ISR_L2(void);                                                       \
+_Pragma(_STRINGIFY(vector=vect))                                                \
+__interrupt void vect##_ISR(void)                                               \
+{                                                                               \
+    __push_context_from_isr();                                                  \
+    __set_cpu_sp((int)nOS_EnterIsr((nOS_Stack*)__get_cpu_sp()))                 \
+    vect##_ISR_L2();                                                            \
+    __disable_interrupt();                                                      \
+    __push_context_from_isr();                                                  \
+    asm("iret");                                                                \
+}                                                                               \
 void vect##_ISR_L2(void)
 
 //#define NOS_ISR(vect)                                                           \
@@ -83,10 +85,10 @@ void vect##_ISR_L2(void)
 //inline void vect##_ISR_L2(void)
 
 #ifdef NOS_PRIVATE
- void   nOS_InitSpecific        (void);
- void   nOS_InitContext         (nOS_Thread *thread, nOS_Stack *stack, size_t ssize, nOS_ThreadEntry entry, void *arg);
+ void   nOS_InitSpecific         (void);
+ void   nOS_InitContext          (nOS_Thread *thread, nOS_Stack *stack, size_t ssize, nOS_ThreadEntry entry, void *arg);
  /* Absolutely need a naked function because function call push the return address on the stack */
- __task void   nOS_SwitchContext       (void);
+ __task void   nOS_SwitchContext (void);
 #endif
 
 #ifdef __cplusplus
