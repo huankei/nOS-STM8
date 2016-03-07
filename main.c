@@ -16,7 +16,7 @@
 
 #define THREAD_STACK_SIZE       128
 
-static void Timer2Init(void);
+static void Timer4Init(void);
 
 void ThreadA(void *arg);
 void ThreadB(void *arg);
@@ -77,7 +77,7 @@ void ThreadC(void *arg)
 NOS_ISR(TIM4_OVR_UIF_vector)
 {
     TIM4_SR_UIF = 0;        /* Clear TIM4 interrupt flag */
-    nOS_Tick();;
+    nOS_Tick();
 }
 
 static void Timer4Init(void)

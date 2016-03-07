@@ -56,7 +56,7 @@ _Pragma(_STRINGIFY(vector=vect))                                                
 __interrupt void vect##_ISR(void)                                               \
 {                                                                               \
     __push_context_from_isr();                                                  \
-    __set_cpu_sp((int)nOS_EnterIsr((nOS_Stack*)__get_cpu_sp()))                 \
+    __set_cpu_sp((int)nOS_EnterIsr((nOS_Stack*)__get_cpu_sp()));                \
     vect##_ISR_L2();                                                            \
     __disable_interrupt();                                                      \
     __push_context_from_isr();                                                  \
