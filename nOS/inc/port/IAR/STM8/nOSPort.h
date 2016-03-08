@@ -61,7 +61,6 @@ __interrupt void vect##_ISR(void)                                               
     __disable_interrupt();                                                      \
     __set_cpu_sp((int)nOS_EnterIsr((nOS_Stack*)__get_cpu_sp()));                \
     __push_context_from_isr();                                                  \
-    asm("iret");                                                                \
 }                                                                               \
 void vect##_ISR_L2(void)
 
