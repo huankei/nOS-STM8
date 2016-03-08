@@ -51,18 +51,24 @@ nOS_Stack*      nOS_EnterIsr        (nOS_Stack *sp);
 nOS_Stack*      nOS_LeaveIsr        (nOS_Stack *sp);
 
 #define NOS_ISR(vect)                                                           \
-void vect##_ISR_L2(void);                                                       \
+__task void vect##_ISR_L2(void);                                                \
+void vect##_ISR_L3(void);                                                       \
 _Pragma(_STRINGIFY(vector=vect))                                                \
 __interrupt void vect##_ISR(void)                                               \
 {                                                                               \
-    __push_context_from_isr();                                                  \
-    __set_cpu_sp((int)nOS_EnterIsr((nOS_Stack*)__get_cpu_sp()));                \
     vect##_ISR_L2();                                                            \
-    __disable_interrupt();                                                      \
-    __set_cpu_sp((int)nOS_EnterIsr((nOS_Stack*)__get_cpu_sp()));                \
-    __push_context_from_isr();                                                  \
 }                                                                               \
-void vect##_ISR_L2(void)
+__task void vect##_ISR_L2(void)                                                 \
+{                                                                               \
+    __push_context_from_task();                                                 \
+    __set_cpu_sp((int)nOS_EnterIsr((nOS_Stack*)__get_cpu_sp()));                \
+    vect##_ISR_L3();                                                            \
+    __disable_interrupt();                                                      \
+    __set_cpu_sp((int)nOS_LeaveIsr((nOS_Stack*)__get_cpu_sp()));                \
+    __pop_context_from_task();                                                  \
+    asm("ret");                                                                 \
+}                                                                               \
+void vect##_ISR_L3(void)
 
 #ifdef NOS_PRIVATE
  void   nOS_InitSpecific         (void);
