@@ -12,6 +12,7 @@
 
         #include <vregs.inc>
 
+        section .near.bss:DATA
 savepcl         DS8    1
 savepch         DS8    1
 
@@ -98,6 +99,7 @@ __pop_context_from_isr:
 __set_cpu_sp:
                 pop savepch
                 pop savepcl
+                addw X, #2
                 ldw SP, X
                 push  savepcl
                 push  savepch
