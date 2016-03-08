@@ -370,7 +370,7 @@
  *   1. If disabled, application is responsible to call nOS_TimerProcess.                                             *
  *                                                                                                                    *
  **********************************************************************************************************************/
-#define NOS_CONFIG_TIMER_THREAD_ENABLE              1
+#define NOS_CONFIG_TIMER_THREAD_ENABLE              0
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -443,7 +443,7 @@
  *   1. If disabled, application is responsible to call nOS_SignalProcess.                                            *
  *                                                                                                                    *
  **********************************************************************************************************************/
-#define NOS_CONFIG_SIGNAL_THREAD_ENABLE             1
+#define NOS_CONFIG_SIGNAL_THREAD_ENABLE             0
 
 /**********************************************************************************************************************
  *                                                                                                                    *
@@ -551,7 +551,7 @@
  *   1. If disabled, application is responsible to call nOS_AlarmProcess.                                             *
  *                                                                                                                    *
  **********************************************************************************************************************/
-#define NOS_CONFIG_ALARM_THREAD_ENABLE              1
+#define NOS_CONFIG_ALARM_THREAD_ENABLE              0
 
 /**********************************************************************************************************************
  *                                                                                                                    *
