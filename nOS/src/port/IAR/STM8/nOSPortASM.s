@@ -1,4 +1,4 @@
-        name  nosportasm
+        name  nOSPortASM
         
         public  __push_context
         public  __pop_context
@@ -11,8 +11,9 @@
         #include <vregs.inc>
 
         section .near.bss:DATA
-savepcl         DS8    1
-savepch         DS8    1
+
+PCL             DS8    1
+PCH             DS8    1
 
         section .near_func.text:CODE
         
@@ -54,45 +55,46 @@ pop_vregs       macro
                 pop  ?b0
                 endm
                 
+pop_pc          macro
+                pop PCH
+                pop PCL
+                endm
+                
+push_pc         macro
+                push  PCL
+                push  PCH
+                endm
+                
 __push_context:
-                pop savepch
-                pop savepcl
+                pop_pc
                 pushw Y
                 pushw X
                 push  A
                 push  CC
                 push_vregs
-                push  savepcl
-                push  savepch
+                push_pc
                 ret
 
 __pop_context:
-                pop savepch
-                pop savepcl
+                pop_pc
                 pop_vregs
                 pop  CC
                 pop  A
                 popw X
                 popw Y
-                push  savepcl
-                push  savepch
+                push_pc
                 ret
 
 __set_cpu_sp:
-                pop savepch
-                pop savepcl
-                ;addw X, #2
+                pop_pc
                 ldw SP, X
-                push  savepcl
-                push  savepch
+                push_pc
                 ret
 
 __get_cpu_sp:
-                pop savepch
-                pop savepcl
+                pop_pc
                 ldw X, SP
-                push  savepcl
-                push  savepch
+                push_pc
                 ret
 
 __get_cpu_x:
