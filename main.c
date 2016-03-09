@@ -40,8 +40,6 @@ static void Timer4Init(void)
     TIM4_PSCR_PSC = 6;      /* Prescaler of 64 from main clock */
     TIM4_ARR = 250;         /* Compare value for 1000 Hz tick */
     TIM4_CR1_CEN = 1;       /* Counter enable */
-
-    asm("RIM");             /* Enable global interrupts */
 }
 
 static void LEDBlinkInit(void)
@@ -128,11 +126,13 @@ int main (void)
     //nOS_ThreadCreate(&threadC, ThreadC, (void*)100, threadCStack, THREAD_STACK_SIZE, NOS_CONFIG_HIGHEST_THREAD_PRIO-2, NOS_THREAD_READY, "ThreadC");
 
     nOS_Start(Timer4Init);
+    
+    asm("RIM");             /* Enable global interrupts */
 
     while (1)
     {
         //nOS_SemGive(&semC);
-        asm("RIM");
+        //asm("RIM");
         cntr++;
         //PD_ODR_bit.ODR0 = !PD_ODR_bit.ODR0;
         //for (i = 0; i < 6; i++)
