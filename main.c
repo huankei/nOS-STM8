@@ -58,29 +58,30 @@ void delay(unsigned int n)
 void ThreadA(void *arg)
 {
     volatile uint32_t cntr = 0;
-    int i;
-
-    (void)arg;
-
-    while(1)
-    {
-        PD_ODR_bit.ODR0 = !PD_ODR_bit.ODR0;
-        nOS_SleepMs(500);
-    }
-}
-
-void ThreadB(void *arg)
-{
-    volatile uint32_t cntr = 0;
-    cntr |= 0x80;
 
     (void)arg;
 
     while(1)
     {
         nOS_SemTake(&semB, NOS_WAIT_INFINITE);
+        PD_ODR_bit.ODR0 = 1;
+        nOS_SleepMs(500);
         nOS_SemGive(&semA);
-        cntr++;
+    }
+}
+
+void ThreadB(void *arg)
+{
+    volatile uint32_t cntr = 0;
+
+    (void)arg;
+
+    while(1)
+    {
+        nOS_SemTake(&semA, NOS_WAIT_INFINITE);
+        PD_ODR_bit.ODR0 = 0;
+        nOS_SleepMs(500);
+        nOS_SemGive(&semB);
     }
 }
 
@@ -117,12 +118,12 @@ int main (void)
 
     nOS_ThreadSetName(NULL, "main");
 
-    //nOS_SemCreate(&semA, 0, 1);
-    //nOS_SemCreate(&semB, 0, 1);
+    nOS_SemCreate(&semA, 1, 1);
+    nOS_SemCreate(&semB, 0, 1);
     //nOS_SemCreate(&semC, 0, 1);
 
     nOS_ThreadCreate(&threadA, ThreadA, (void*)300, threadAStack, THREAD_STACK_SIZE, NOS_CONFIG_HIGHEST_THREAD_PRIO,   NOS_THREAD_READY, "ThreadA");
-    //nOS_ThreadCreate(&threadB, ThreadB, (void*)200, threadBStack, THREAD_STACK_SIZE, NOS_CONFIG_HIGHEST_THREAD_PRIO-1, NOS_THREAD_READY, "ThreadB");
+    nOS_ThreadCreate(&threadB, ThreadB, (void*)200, threadBStack, THREAD_STACK_SIZE, NOS_CONFIG_HIGHEST_THREAD_PRIO-1, NOS_THREAD_READY, "ThreadB");
     //nOS_ThreadCreate(&threadC, ThreadC, (void*)100, threadCStack, THREAD_STACK_SIZE, NOS_CONFIG_HIGHEST_THREAD_PRIO-2, NOS_THREAD_READY, "ThreadC");
 
     nOS_Start(Timer4Init);
