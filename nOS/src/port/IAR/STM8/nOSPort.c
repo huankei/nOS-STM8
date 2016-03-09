@@ -143,6 +143,7 @@ nOS_Stack *nOS_LeaveIsr (nOS_Stack *sp)
 #endif
             sp = nOS_runningThread->stackPtr;
         }
+        asm("RIM");
     }
 
     return sp;

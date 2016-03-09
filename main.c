@@ -67,8 +67,7 @@ void ThreadA(void *arg)
     while(1)
     {
         PD_ODR_bit.ODR0 = !PD_ODR_bit.ODR0;
-        for (i = 0; i < 6; i++)
-            delay(0xFFFF);
+        nOS_SleepMs(500);
     }
 }
 
@@ -128,11 +127,12 @@ int main (void)
     //nOS_ThreadCreate(&threadB, ThreadB, (void*)200, threadBStack, THREAD_STACK_SIZE, NOS_CONFIG_HIGHEST_THREAD_PRIO-1, NOS_THREAD_READY, "ThreadB");
     //nOS_ThreadCreate(&threadC, ThreadC, (void*)100, threadCStack, THREAD_STACK_SIZE, NOS_CONFIG_HIGHEST_THREAD_PRIO-2, NOS_THREAD_READY, "ThreadC");
 
-    nOS_Start(NULL);
+    nOS_Start(Timer4Init);
 
     while (1)
     {
         //nOS_SemGive(&semC);
+        asm("RIM");
         cntr++;
         //PD_ODR_bit.ODR0 = !PD_ODR_bit.ODR0;
         //for (i = 0; i < 6; i++)
