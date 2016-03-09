@@ -99,14 +99,18 @@ __pop_context_from_isr:
 __set_cpu_sp:
                 pop savepch
                 pop savepcl
-                addw X, #2
+                ;addw X, #2
                 ldw SP, X
                 push  savepcl
                 push  savepch
                 ret
 
 __get_cpu_sp:
+                pop savepch
+                pop savepcl
                 ldw X, SP
+                push  savepcl
+                push  savepch
                 ret
 
 __get_cpu_x:

@@ -32,16 +32,43 @@ nOS_Stack threadAStack[THREAD_STACK_SIZE];
 nOS_Stack threadBStack[THREAD_STACK_SIZE];
 nOS_Stack threadCStack[THREAD_STACK_SIZE];
 
+static void Timer4Init(void)
+{
+    CLK_CKDIVR = 0;         /* Default 16 MHz RC oscillator with no prescaler */
+
+    TIM4_IER_UIE = 1;       /* Enable TIM4 interrupts */
+    TIM4_PSCR_PSC = 6;      /* Prescaler of 64 from main clock */
+    TIM4_ARR = 250;         /* Compare value for 1000 Hz tick */
+    TIM4_CR1_CEN = 1;       /* Counter enable */
+
+    asm("RIM");             /* Enable global interrupts */
+}
+
+static void LEDBlinkInit(void)
+{
+    PD_DDR_bit.DDR0 = 1;
+    PD_CR1_bit.C10 = 1;
+    PD_CR2_bit.C20 = 1;
+    PD_ODR_bit.ODR0 = 0;
+}
+
+void delay(unsigned int n)
+{
+    while (n-- > 0);
+}
+
 void ThreadA(void *arg)
 {
     volatile uint32_t cntr = 0;
+    int i;
 
     (void)arg;
 
     while(1)
     {
-        nOS_SemTake(&semA, NOS_WAIT_INFINITE);
-        cntr++;
+        PD_ODR_bit.ODR0 = !PD_ODR_bit.ODR0;
+        for (i = 0; i < 6; i++)
+            delay(0xFFFF);
     }
 }
 
@@ -80,36 +107,13 @@ NOS_ISR(TIM4_OVR_UIF_vector)
     nOS_Tick();
 }
 
-static void Timer4Init(void)
-{
-    CLK_CKDIVR = 0;         /* Default 16 MHz RC oscillator with no prescaler */
-
-    TIM4_IER_UIE = 1;       /* Enable TIM4 interrupts */
-    TIM4_PSCR_PSC = 6;      /* Prescaler of 64 from main clock */
-    TIM4_ARR = 250;         /* Compare value for 1000 Hz tick */
-    TIM4_CR1_CEN = 1;       /* Counter enable */
-
-    asm("RIM");             /* Enable global interrupts */
-}
-
-static void LEDBlinkInit(void)
-{
-    PD_DDR_bit.DDR0 = 1;
-    PD_CR1_bit.C10 = 1;
-    PD_CR2_bit.C20 = 1;
-    PD_ODR_bit.ODR0 = 0;
-}
-
-void delay(unsigned int n)
-{
-    while (n-- > 0);
-}
-
 int main (void)
 {
     volatile uint32_t cntr = 0;
     int i;
 
+    //CLK_CKDIVR = 0;
+    
     LEDBlinkInit();
 
     nOS_Init();
@@ -129,7 +133,7 @@ int main (void)
     while (1)
     {
         //nOS_SemGive(&semC);
-        //cntr++;
+        cntr++;
         PD_ODR_bit.ODR0 = !PD_ODR_bit.ODR0;
         for (i = 0; i < 6; i++)
             delay(0xFFFF);
