@@ -1,9 +1,7 @@
         name  nosportasm
         
-        public  __push_context_from_task
-        public  __pop_context_from_task
-        public  __push_context_from_isr
-        public  __pop_context_from_isr
+        public  __push_context
+        public  __pop_context
         public  __set_cpu_sp
         public  __get_cpu_sp
         public  __get_cpu_x
@@ -56,7 +54,7 @@ pop_vregs       macro
                 pop  ?b0
                 endm
                 
-__push_context_from_task:
+__push_context:
                 pop savepch
                 pop savepcl
                 pushw Y
@@ -68,7 +66,7 @@ __push_context_from_task:
                 push  savepch
                 ret
 
-__pop_context_from_task:
+__pop_context:
                 pop savepch
                 pop savepcl
                 pop_vregs
@@ -76,22 +74,6 @@ __pop_context_from_task:
                 pop  A
                 popw X
                 popw Y
-                push  savepcl
-                push  savepch
-                ret
-                
-__push_context_from_isr:
-                pop savepch
-                pop savepcl
-                push_vregs
-                push  savepcl
-                push  savepch
-                ret
-
-__pop_context_from_isr:
-                pop savepch
-                pop savepcl
-                pop_vregs
                 push  savepcl
                 push  savepch
                 ret

@@ -10,11 +10,9 @@
 #define NOSPORT_H
 
 #include <intrinsics.h>
-   
-extern void          __push_context_from_task (void);
-extern void          __pop_context_from_task  (void);
-extern void          __push_context_from_isr  (void);
-extern void          __pop_context_from_isr   (void);
+
+extern void          __push_context           (void);
+extern void          __pop_context            (void);
 extern void          __set_cpu_sp             (int sp);
 extern unsigned int  __get_cpu_sp             (void);
 extern unsigned int  __get_cpu_x              (void);
@@ -60,12 +58,12 @@ __interrupt void vect##_ISR(void)                                               
 }                                                                               \
 __task void vect##_ISR_L2(void)                                                 \
 {                                                                               \
-    __push_context_from_task();                                                 \
+    __push_context();                                                           \
     __set_cpu_sp((int)nOS_EnterIsr((nOS_Stack*)__get_cpu_sp()));                \
     vect##_ISR_L3();                                                            \
     __disable_interrupt();                                                      \
     __set_cpu_sp((int)nOS_LeaveIsr((nOS_Stack*)__get_cpu_sp()));                \
-    __pop_context_from_task();                                                  \
+    __pop_context();                                                            \
     asm("ret");                                                                 \
 }                                                                               \
 void vect##_ISR_L3(void)
