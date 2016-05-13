@@ -50,7 +50,7 @@ nOS_Stack*      nOS_LeaveIsr        (nOS_Stack *sp);
 
 #define NOS_ISR(vect)                                                           \
 __task void vect##_ISR_L2(void);                                                \
-void vect##_ISR_L3(void);                                                       \
+__task void vect##_ISR_L3(void);                                                       \
 _Pragma(_STRINGIFY(vector=vect))                                                \
 __interrupt void vect##_ISR(void)                                               \
 {                                                                               \
@@ -66,7 +66,7 @@ __task void vect##_ISR_L2(void)                                                 
     __pop_context();                                                            \
     asm("ret");                                                                 \
 }                                                                               \
-void vect##_ISR_L3(void)
+__task void vect##_ISR_L3(void)
 
 #ifdef NOS_PRIVATE
  void   nOS_InitSpecific         (void);
