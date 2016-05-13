@@ -1,5 +1,5 @@
         name  nOSPortASM
-        
+
         public  __set_cpu_sp
         public  __get_cpu_sp
 
@@ -9,12 +9,12 @@ PCL             DS8    1
 PCH             DS8    1
 
         section .near_func.text:CODE
-                
+
 pop_pc          macro
                 pop PCH
                 pop PCL
                 endm
-                
+
 push_pc         macro
                 push  PCL
                 push  PCH

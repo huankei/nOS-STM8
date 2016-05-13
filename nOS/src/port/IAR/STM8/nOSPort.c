@@ -8,7 +8,7 @@
 
 #define NOS_PRIVATE
 #include "nOS.h"
-   
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -78,7 +78,7 @@ void nOS_InitContext(nOS_Thread *thread, nOS_Stack *stack, size_t ssize, nOS_Thr
     *tos-- = 0x13;                                 /* ?b13 */
     *tos-- = 0x14;                                 /* ?b14 */
     *tos-- = 0x15;                                 /* ?b15 */
-#else   
+#else
      tos -= 16;                                    /* ?b0 to ?b15 */
 #endif
 
