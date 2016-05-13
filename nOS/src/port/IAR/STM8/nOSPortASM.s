@@ -1,14 +1,7 @@
         name  nOSPortASM
         
-        public  __push_context
-        public  __pop_context
         public  __set_cpu_sp
         public  __get_cpu_sp
-        public  __get_cpu_x
-        public  __get_cpu_y
-        public  __get_cpu_cc
-
-        #include <vregs.inc>
 
         section .near.bss:DATA
 
@@ -16,44 +9,6 @@ PCL             DS8    1
 PCH             DS8    1
 
         section .near_func.text:CODE
-        
-push_vregs      macro
-                push  ?b0
-                push  ?b1
-                push  ?b2
-                push  ?b3
-                push  ?b4
-                push  ?b5
-                push  ?b6
-                push  ?b7
-                push  ?b8
-                push  ?b9
-                push  ?b10
-                push  ?b11
-                push  ?b12
-                push  ?b13
-                push  ?b14
-                push  ?b15
-                endm
-                
-pop_vregs       macro
-                pop  ?b15
-                pop  ?b14
-                pop  ?b13
-                pop  ?b12
-                pop  ?b11
-                pop  ?b10
-                pop  ?b9
-                pop  ?b8
-                pop  ?b7
-                pop  ?b6
-                pop  ?b5
-                pop  ?b4
-                pop  ?b3
-                pop  ?b2
-                pop  ?b1
-                pop  ?b0
-                endm
                 
 pop_pc          macro
                 pop PCH
@@ -64,26 +19,6 @@ push_pc         macro
                 push  PCL
                 push  PCH
                 endm
-                
-__push_context:
-                pop_pc
-                pushw Y
-                pushw X
-                push  A
-                push  CC
-                push_vregs
-                push_pc
-                ret
-
-__pop_context:
-                pop_pc
-                pop_vregs
-                pop  CC
-                pop  A
-                popw X
-                popw Y
-                push_pc
-                ret
 
 __set_cpu_sp:
                 pop_pc
@@ -92,21 +27,8 @@ __set_cpu_sp:
                 ret
 
 __get_cpu_sp:
-                pop_pc
                 ldw X, SP
-                push_pc
-                ret
-
-__get_cpu_x:
-                ret
-                
-__get_cpu_y:
-                ldw X, Y
-                ret
-                
-__get_cpu_cc:
-                push CC
-                pop A
+                addw X, #$2
                 ret
 
                 end
